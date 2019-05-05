@@ -5,15 +5,17 @@ import lombok.Data;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 @Data
 @Entity
 public class Message {
 
     private @Id @GeneratedValue Long id;
-    private MessageType type;
+    @NotNull private MessageType type;
     private String content;
-    private String sender;
+    @NotBlank private String sender;
 
     public enum MessageType {
         CHAT,

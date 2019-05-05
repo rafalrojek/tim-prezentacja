@@ -1,49 +1,42 @@
 package com.example.chat;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
 public class MessageController {
 
-    private final MessageRepository repository;
+    private final MessageService service;
 
-    public MessageController(MessageRepository repository) {
-        this.repository = repository;
+    public MessageController(MessageServiceImpl service) {
+        this.service = service;
     }
 
     @GetMapping("/messages")
     List<Message> getAll() {
-        return this.repository.findAll();
+        return this.service.getAll();
     }
 
     @PostMapping("/messages")
-    Message add(@RequestBody Message message) {
-        return this.repository.save(message);
+    Message add(@Valid @RequestBody Message message) {
+        return this.service.create(message);
     }
 
     @GetMapping("/messages/{id}")
     Message get(@PathVariable Long id) {
-        return this.repository.findById(id).orElseThrow(() -> new MessageNotFoundException(id));
+        return this.service.get(id);
     }
 
     @PutMapping("/messages/{id}")
-    Message replace (@RequestBody Message newMessage, @PathVariable Long id) {
-        return this.repository.findById(id)
-                .map(old -> {
-                    old.setSender(newMessage.getSender());
-                    old.setContent(newMessage.getContent());
-                    old.setType(newMessage.getType());
-                    return this.repository.save(old);
-                }).orElseGet(() -> {
-                    newMessage.setId(id);
-                    return this.repository.save(newMessage);
-                });
+    Message replace (@Valid @RequestBody Message newMessage, @PathVariable Long id) {
+        return this.service.update(newMessage, id);
     }
 
     @DeleteMapping("/messages/{id}")
     void delete (@PathVariable Long id) {
-        this.repository.deleteById(id);
+        this.service.delete(id);
     }
 }
